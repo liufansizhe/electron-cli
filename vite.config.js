@@ -9,7 +9,6 @@ import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
 import fs from 'fs'
 import path from 'path'
 import postCssPxToRem from 'postcss-pxtorem'
-import seoPrerender from 'vite-plugin-seo-prerender'
 import { visualizer } from 'rollup-plugin-visualizer'
 import viteCompression from 'vite-plugin-compression'
 import { viteMockServe } from 'vite-plugin-mock'
@@ -70,15 +69,6 @@ export default defineConfig(({ command, mode }) => {
             },
             plugins: [
                 vue(),
-                seoPrerender({
-                    callback: (html, route) => {
-                        return html.replace(
-                            /(<html.*?)(style=".*?")/,
-                            '$1 style="font-size:192px;"'
-                        )
-                    },
-                    routes: [] // 需要生成的路由
-                }),
                 createSvgIconsPlugin({
                     // 指定需要缓存的图标文件夹
                     iconDirs: [path.resolve(process.cwd(), 'src/assets/svg')],
