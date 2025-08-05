@@ -1,11 +1,9 @@
 // 路由
 
-import { createRouter, createWebHistory } from 'vue-router'
-
-import isNewVersion from '@/utils/version'
+import { createRouter, createWebHashHistory } from 'vue-router'
 
 const router = createRouter({
-    history: createWebHistory(import.meta.env.BASE_URL),
+    history: createWebHashHistory(import.meta.env.BASE_URL),
     routes: [
         {
             path: '/',
@@ -43,7 +41,6 @@ router.afterEach((to) => {
     }
 })
 router.beforeEach((to, from, next) => {
-    isNewVersion()
     next()
 })
 export default router
