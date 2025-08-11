@@ -43,7 +43,6 @@ function createWindow() {
 
 app.whenReady().then(() => {
     createWindow()
-
     // 设置窗口控制IPC监听器
     setupWindowControls()
     app.on('activate', function () {
