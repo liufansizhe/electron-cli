@@ -1,12 +1,12 @@
 // Electron 主进程入口
-import { BrowserWindow, app, ipcMain } from 'electron'
+import { BrowserWindow, app } from 'electron'
 
 import { fileURLToPath } from 'node:url'
+import mainUtils from './mainUtils.js'
 import path from 'path'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
-console.log(process.env.NODE_ENV)
 // 忽略证书错误（仅开发环境）
 if (process.env.NODE_ENV === 'development') {
     app.commandLine.appendSwitch('ignore-certificate-errors')
@@ -22,7 +22,7 @@ function createWindow() {
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             nodeIntegration: true,
-            contextIsolation: false
+            contextIsolation: true
         }
     })
 
@@ -43,55 +43,16 @@ function createWindow() {
 
 app.whenReady().then(() => {
     createWindow()
-    // 设置窗口控制IPC监听器
-    setupWindowControls()
+    for (let i in mainUtils) {
+        mainUtils[i]?.()
+    }
     app.on('activate', function () {
         if (BrowserWindow.getAllWindows().length === 0) createWindow()
     })
 })
 
-// // 窗口控制函数
-function setupWindowControls() {
-    // 最小化窗口
-    ipcMain.on('window-minimize', (event) => {
-        const webContents = event.sender
-        const win = BrowserWindow.fromWebContents(webContents)
-        win.minimize()
-    })
-
-    // 最大化/还原窗口
-    ipcMain.on('window-maximize', (event) => {
-        const webContents = event.sender
-        const win = BrowserWindow.fromWebContents(webContents)
-        if (win.isMaximized()) {
-            win.unmaximize()
-        } else {
-            win.maximize()
-        }
-    })
-
-    // 关闭窗口
-    ipcMain.on('window-close', (event) => {
-        const webContents = event.sender
-        const win = BrowserWindow.fromWebContents(webContents)
-        win.close()
-    })
-
-    // 获取窗口最大化状态
-    ipcMain.handle('window-is-maximized', (event) => {
-        const webContents = event.sender
-        const win = BrowserWindow.fromWebContents(webContents)
-        return win.isMaximized()
-    })
-}
-
 app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') {
         app.quit()
-    } else {
-        ipcMain.removeHandler('window-is-maximized')
-        ipcMain.removeHandler('window-minimize')
-        ipcMain.removeHandler('window-maximize')
-        ipcMain.removeHandler('window-close')
     }
 })
